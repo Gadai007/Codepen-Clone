@@ -1,24 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useState, useEffect } from "react";
+import useLocalStorage from './hooks/useLocalStorage'
+import Editor from "./components/Editor";
+import "./App.css";
 
 function App() {
+  const [html, setHtml] = useLocalStorage('html',"");
+  const [js, setJs] = useLocalStorage('js',"");
+  const [css, setCss] = useLocalStorage('css',"");
+  const [srcDoc, setSrcDoc] = useState('')
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSrcDoc(`
+        <html>${html}</html>
+        <style>${css}</style>
+        <script>${js}</script>
+      `)
+    }, 250)
+    return () => clearTimeout(timeout)
+  }, [ html, css, js])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <div className="pane top-pane">
+        <Editor
+          language="xml"
+          displayName="HTML"
+          value={html}
+          onChange={setHtml}
+        />
+        <Editor
+          language="css"
+          displayName="CSS"
+          value={css}
+          onChange={setCss}
+        />
+        <Editor
+          language="javascript"
+          displayName="JS"
+          value={js}
+          onChange={setJs}
+        />
+      </div>
+      <div className="pane">
+        <iframe
+          srcDoc={srcDoc}
+          title="output"
+          sandbox="allow-scripts"
+          frameBorder="0"
+          height="100%"
+          width="100%"
+        />
+      </div>
+    </Fragment>
   );
 }
 
